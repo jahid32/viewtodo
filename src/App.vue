@@ -5,7 +5,7 @@
   <Composer v-model="newTodo" @onEnter="addTodo"/>
     <div class="filter">
       <div class="filter__left">
-        <button class="filter__button filter__button--active">All ({{todosCount}})</button>
+        <button class="filter__button filter__button--active" @click="filtermode ='all'">All ({{todosCount}})</button>
         <button class="filter__button" @click="filtermode ='pending'">Pending ({{pendingCount}})</button>
         <button class="filter__button" @click="filtermode ='done'">Done ({{doneCount}})</button>
       </div>
