@@ -2,25 +2,20 @@
 <div class="app-container">
   <h1 class="app-title">Vuejs todos</h1>
 
-  <div class="composer">
-    <form @submit.prevent="addTodo"> 
-    <input type="text" v-model="newTodo" placeholder="Type and hit enter..." class="composer__input" />
-    </form>
+  <Composer v-model="newTodo" @onEnter="addTodo"/>
     <div class="filter">
       <div class="filter__left">
         <button class="filter__button filter__button--active">All ({{todosCount}})</button>
-        <button class="filter__button">Pending ({{pendingCount}})</button>
-        <button class="filter__button">Done ({{doneCount}})</button>
+        <button class="filter__button" @click="filtermode ='pending'">Pending ({{pendingCount}})</button>
+        <button class="filter__button" @click="filtermode ='done'">Done ({{doneCount}})</button>
       </div>
       <div>
-        <button class="filter__button filter__button--danger">Clear</button>
+        <button class="filter__button filter__button--danger" @click="clearTodo">Clear</button>
       </div>
     </div>
-  </div>
-
   <div class="todos">
     <!-- Todo start -->
-    <Todo v-for="todo in todos" :key="todo.id" :todo="todo" />  
+    <Todo v-for="todo in filterTodos" :key="todo.id" :todo="todo" @doneTodo="completeTodo(todo)"/>  
     <!-- Todo end -->
 
   </div>
@@ -30,16 +25,25 @@
 <script>
 import { v4 as uuidv4 } from 'uuid';
 import Todo from './components/Todo.vue';
-import { computed } from '@vue/runtime-core';
+import Composer from './components/Composer.vue';
 export default {
   name: 'Todo App',
   components: {
-    Todo
+    Todo,
+    Composer
+  },
+  mounted() {
+    this.fetchTodos();
+  },
+  updated() {
+    localStorage.setItem('todos', JSON.stringify(this.todos));
   },
   data() {
     return {
       newTodo: '',
-      todos: []
+      todos: [],
+      filtermode:'all',
+
     }
   },
   methods: {
@@ -51,7 +55,20 @@ export default {
         createdAt: new Date().toString()
       });
       this.newTodo = '';
+    },
+    completeTodo(todo) {
+      todo.status = todo.status === 'pending' ? 'done' : 'pending';
+    },
+    clearTodo() {
+      this.todos = this.todos.filter(todo => todo.status !== 'done');
+    },
+    fetchTodos() {
+      const todos = localStorage.getItem('todos');
+      if (todos) {
+        this.todos = JSON.parse(todos);
+      }
     }
+
   },
   computed: {
     todosCount() {
@@ -62,6 +79,15 @@ export default {
     },
     doneCount() {
       return this.todos.filter(todo => todo.status === 'done').length;
+    },
+    filterTodos() {
+      if (this.filtermode === 'all') {
+        return this.todos;
+      } else if (this.filtermode === 'pending') {
+        return this.todos.filter(todo => todo.status === 'pending');
+      } else if (this.filtermode === 'done') {
+        return this.todos.filter(todo => todo.status === 'done');
+      }
     }
   }
 }

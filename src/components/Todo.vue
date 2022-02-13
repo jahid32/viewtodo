@@ -1,5 +1,5 @@
    <template>
-    <div class="todo" :class="{'todo--done':todo.status == 'done'}" :key="todo.id">
+    <div class="todo" :class="{'todo--done':todo.status == 'done'}" :key="todo.id" @click="$emit('doneTodo')">
       <div class="todo__status-dot"></div>
       <div>
         <p class="todo__content">{{todo.task}}</p>
